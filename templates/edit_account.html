@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Account</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f1f8e9; padding: 20px; }
+    h2 { text-align: center; color: #2e7d32; }
+    form { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 20px; }
+    input, select, button { padding: 8px; border-radius: 5px; border: 1px solid #ccc; width: 250px; }
+    button { background-color: #2e7d32; color: white; cursor: pointer; }
+    button:hover { background-color: #1b5e20; }
+  </style>
+</head>
+<body>
+  <h2>Edit Account</h2>
+  <form method="POST">
+    <input type="text" name="account_name" value="{{ account[1] }}" required>
+    <select name="account_type" required>
+      <option value="Debit" {% if account[2] == "Debit" %}selected{% endif %}>Debit</option>
+      <option value="Credit" {% if account[2] == "Credit" %}selected{% endif %}>Credit</option>
+    </select>
+    <input type="number" step="0.01" name="balance" value="{{ account[3] }}" required>
+    <button type="submit">Update Account</button>
+  </form>
+
+  <div style="text-align:center; margin-top:20px;">
+    <a href="{{ url_for('accounts_page') }}">Back to Accounts</a>
+  </div>
+</body>
+</html>
