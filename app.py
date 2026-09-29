@@ -8,6 +8,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import csv
 import requests
+from openai import OpenAI
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
@@ -36,26 +37,18 @@ def init_db():
                     account_id INTEGER)""")
     conn.commit()
     conn.close()
-
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL = "llama2"
+MODEL = "llama3.2"
 
 def query_ollama(prompt, model=MODEL):
-    response = requests.post(OLLAMA_URL, json={
-        "model": model,
-        "prompt": prompt
-    }, stream=True)
-
-    output = ""
-    for line in response.iter_lines():
-        if line:
-            data = line.decode("utf-8")
-            if '"response":' in data:
-                part = data.split('"response":"')[1].split('"')[0]
-                output += part
-                print(output)
-    print(output)
-    return output.strip()
+    openai = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
+    response = openai.chat.completions.create(
+    model=MODEL,
+    messages=[{"role": "user", "content": prompt}]
+    )
+    print(response.choices[0].message.content)
+    output = response.choices[0].message.content
+    return output
+    
 @app.route("/chat", methods=["POST"])
 def chat():
     if "user_id" not in session:

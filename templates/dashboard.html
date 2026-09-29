@@ -40,6 +40,7 @@
 
   <!-- Expense entry form -->
   <form method="POST">
+
     <select name="category" required>
       <option value="">Select Category</option>
       <option value="Food">Food</option>
@@ -47,6 +48,7 @@
       <option value="Shopping">Shopping</option>
       <option value="Bills">Bills</option>
       <option value="Entertainment">Entertainment</option>
+      <option value="Parents">Parents</option>
       <option value="Other">Other</option>
     </select>
     <input type="number" name="amount" placeholder="Amount" required>
@@ -104,6 +106,7 @@
       <option value="Shopping">Shopping</option>
       <option value="Bills">Bills</option>
       <option value="Entertainment">Entertainment</option>
+      <option value="Parents">Parents</option>
       <option value="Other">Other</option>
     </select>
 
@@ -276,42 +279,149 @@
 </script>
 
 <head>
-    <title>Expense Chat</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        #chatbox { border: 1px solid #ddd; padding: 10px; height: 400px; overflow-y: scroll; }
-        .user { color: blue; margin: 5px 0; }
-        .bot { color: green; margin: 5px 0; }
-    </style>
+  <title>Expense Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f5f7fa;
+    }
+
+    /* Floating chat button */
+    #chat-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #0078d4;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      font-size: 14px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+
+    /* Chat window hidden by default */
+    #chat-window {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 300px;
+      height: 400px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background-color: #fff;
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    #chatbox {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message {
+      display: flex;
+    }
+
+    .user .bubble {
+      background-color: #0078d4;
+      color: white;
+      border-radius: 15px 15px 0 15px;
+      padding: 8px 12px;
+      max-width: 70%;
+      margin-left: auto;
+    }
+
+    .bot .bubble {
+      background-color: #e2e3e5;
+      color: #000;
+      border-radius: 15px 15px 15px 0;
+      padding: 8px 12px;
+      max-width: 70%;
+      margin-right: auto;
+    }
+
+    #input-area {
+      display: flex;
+      border-top: 1px solid #ddd;
+      padding: 8px;
+      gap: 5px;
+    }
+
+    #message {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    #send-btn {
+      background-color: #0078d4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    #send-btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
+
 <body>
-    <h1>Expense Analysis Chat</h1>
+  <h1>Expense Analysis Dashboard</h1>
+
+  <!-- Floating chat button -->
+  <button id="chat-toggle">Chat</button>
+
+  <!-- Chat window -->
+  <div id="chat-window">
     <div id="chatbox"></div>
-    <input type="text" id="message" placeholder="Ask about your expenses..." style="width:80%">
-    <button onclick="sendMessage()">Send</button>
+    <div id="input-area">
+      <input type="text" id="message" placeholder="Ask about your expenses..." />
+      <button id="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
 
-    <script>
-        function sendMessage() {
-            const msg = document.getElementById("message").value;
-            if (!msg) return;
+  <script>
+    // Toggle chat window
+    document.getElementById("chat-toggle").addEventListener("click", () => {
+      const chatWindow = document.getElementById("chat-window");
+      chatWindow.style.display = chatWindow.style.display === "flex" ? "none" : "flex";
+    });
 
-            const chatbox = document.getElementById("chatbox");
-            chatbox.innerHTML += "<div class='user'>You: " + msg + "</div>";
+    function sendMessage() {
+      const msg = document.getElementById("message").value.trim();
+      if (!msg) return;
 
-            fetch("/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: msg })
-            })
-            .then(res => res.json())
-            .then(data => {
-                chatbox.innerHTML += "<div class='bot'>AI: " + data.reply + "</div>";
-                chatbox.scrollTop = chatbox.scrollHeight;
-            });
+      const chatbox = document.getElementById("chatbox");
+      chatbox.innerHTML += `<div class="message user"><div class="bubble">You: ${msg}</div></div>`;
 
-            document.getElementById("message").value = "";
-        }
-    </script>
+      fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msg })
+      })
+        .then(res => res.json())
+        .then(data => {
+          chatbox.innerHTML += `<div class="message bot"><div class="bubble">Agent: ${data.reply}</div></div>`;
+          chatbox.scrollTop = chatbox.scrollHeight;
+        });
+
+      document.getElementById("message").value = "";
+    }
+  </script>
+</body>
 
   <!-- Chart type selector -->
 <div style="margin:20px; text-align:center;">
